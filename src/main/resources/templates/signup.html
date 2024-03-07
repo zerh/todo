@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html data-theme="light">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>::Billet Todo List::</title>
+        <meta name="TodoList" content="Billet TodoList" />
+        <!-- Pico.css -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css" />
+        <!-- Alpine.js -->
+        <script src="//unpkg.com/alpinejs" defer></script>
+        <style>
+            [x-cloak] { display: none; }
+            main {
+                transform: scale(0.8);
+                padding: 0px !important;
+            }
+            body {
+                overflow-y: hidden;
+                margin: 0px;
+                padding: 0px;
+            }
+            input[type="date"] {
+                width: 190px;
+            }
+            details summary::after { float: left !important; margin: 0px 10px 0px 0px;}
+            .error {
+                border-color: red; /* Cambiar el color del borde para indicar el estado de error */
+            }
+        </style>
+    </head>
+    <body x-data="app" x-cloak style="overflow-y: scroll;">
+        <fieldset class="grid">
+            <button 
+            @click="toggleTheme($event)"
+            style="width:64px; position: absolute; top: 0px; left: 0px; border: 0px;" 
+            class="outline">🌞</button>
+        </fieldset>
+
+        <main class="container">
+            <article x-show="signupSucess">
+                <div style="display: grid; place-items: center" >
+                    <h1 style="margin-bottom: 0px; font-size: 3rem;">¡Exito!</h1>
+                    <small>Tu cuenta ha sido creada exitosamente. Ahora puedes continuar iniciando sesión con tu nueva cuenta.</small><br />
+                    <img width="350" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjxzdmcgaWQ9IkxheWVyXzEiIHN0eWxlPSJlbmFibGUtYmFja2dyb3VuZDpuZXcgMCAwIDUxMiA1MTI7IiB2ZXJzaW9uPSIxLjEiIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiB4bWw6c3BhY2U9InByZXNlcnZlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIj48c3R5bGUgdHlwZT0idGV4dC9jc3MiPgoJLnN0MHtmaWxsOiMyQkI2NzM7fQoJLnN0MXtmaWxsOm5vbmU7c3Ryb2tlOiNGRkZGRkY7c3Ryb2tlLXdpZHRoOjMwO3N0cm9rZS1taXRlcmxpbWl0OjEwO30KPC9zdHlsZT48cGF0aCBjbGFzcz0ic3QwIiBkPSJNNDg5LDI1NS45YzAtMC4yLDAtMC41LDAtMC43YzAtMS42LDAtMy4yLTAuMS00LjdjMC0wLjktMC4xLTEuOC0wLjEtMi44YzAtMC45LTAuMS0xLjgtMC4xLTIuNyAgYy0wLjEtMS4xLTAuMS0yLjItMC4yLTMuM2MwLTAuNy0wLjEtMS40LTAuMS0yLjFjLTAuMS0xLjItMC4yLTIuNC0wLjMtMy42YzAtMC41LTAuMS0xLjEtMC4xLTEuNmMtMC4xLTEuMy0wLjMtMi42LTAuNC00ICBjMC0wLjMtMC4xLTAuNy0wLjEtMUM0NzQuMywxMTMuMiwzNzUuNywyMi45LDI1NiwyMi45UzM3LjcsMTEzLjIsMjQuNSwyMjkuNWMwLDAuMy0wLjEsMC43LTAuMSwxYy0wLjEsMS4zLTAuMywyLjYtMC40LDQgIGMtMC4xLDAuNS0wLjEsMS4xLTAuMSwxLjZjLTAuMSwxLjItMC4yLDIuNC0wLjMsMy42YzAsMC43LTAuMSwxLjQtMC4xLDIuMWMtMC4xLDEuMS0wLjEsMi4yLTAuMiwzLjNjMCwwLjktMC4xLDEuOC0wLjEsMi43ICBjMCwwLjktMC4xLDEuOC0wLjEsMi44YzAsMS42LTAuMSwzLjItMC4xLDQuN2MwLDAuMiwwLDAuNSwwLDAuN2MwLDAsMCwwLDAsMC4xczAsMCwwLDAuMWMwLDAuMiwwLDAuNSwwLDAuN2MwLDEuNiwwLDMuMiwwLjEsNC43ICBjMCwwLjksMC4xLDEuOCwwLjEsMi44YzAsMC45LDAuMSwxLjgsMC4xLDIuN2MwLjEsMS4xLDAuMSwyLjIsMC4yLDMuM2MwLDAuNywwLjEsMS40LDAuMSwyLjFjMC4xLDEuMiwwLjIsMi40LDAuMywzLjYgIGMwLDAuNSwwLjEsMS4xLDAuMSwxLjZjMC4xLDEuMywwLjMsMi42LDAuNCw0YzAsMC4zLDAuMSwwLjcsMC4xLDFDMzcuNywzOTguOCwxMzYuMyw0ODkuMSwyNTYsNDg5LjFzMjE4LjMtOTAuMywyMzEuNS0yMDYuNSAgYzAtMC4zLDAuMS0wLjcsMC4xLTFjMC4xLTEuMywwLjMtMi42LDAuNC00YzAuMS0wLjUsMC4xLTEuMSwwLjEtMS42YzAuMS0xLjIsMC4yLTIuNCwwLjMtMy42YzAtMC43LDAuMS0xLjQsMC4xLTIuMSAgYzAuMS0xLjEsMC4xLTIuMiwwLjItMy4zYzAtMC45LDAuMS0xLjgsMC4xLTIuN2MwLTAuOSwwLjEtMS44LDAuMS0yLjhjMC0xLjYsMC4xLTMuMiwwLjEtNC43YzAtMC4yLDAtMC41LDAtMC43ICBDNDg5LDI1Niw0ODksMjU2LDQ4OSwyNTUuOUM0ODksMjU2LDQ4OSwyNTYsNDg5LDI1NS45eiIgaWQ9IlhNTElEXzNfIi8+PGcgaWQ9IlhNTElEXzFfIj48bGluZSBjbGFzcz0ic3QxIiBpZD0iWE1MSURfMl8iIHgxPSIyMTMuNiIgeDI9IjM2OS43IiB5MT0iMzQ0LjIiIHkyPSIxODguMiIvPjxsaW5lIGNsYXNzPSJzdDEiIGlkPSJYTUxJRF80XyIgeDE9IjIzMy44IiB4Mj0iMTU0LjciIHkxPSIzNDUuMiIgeTI9IjI2Ni4xIi8+PC9nPjwvc3ZnPg==" />                          
+                    <br />
+                    <a href="/login" role="button">Continuar</a>
+                </div>
+            </article>
+
+            <article class="grid" x-show="!signupSucess">
+                <form @submit.prevent="signup">
+                    <hgroup>
+                        <h2>Registro</h2>
+                        <p>Crea una cuenta</p>
+                    </hgroup>
+                    <form x-on:submit.prevent="post">
+
+                        <b style="color:rgb(158, 0, 11)" x-show="usernameUnavailable">Nombre de usuario en uso</b>
+                        <input type="text" name="username" placeholder="Username" 
+                            x-ref="username" 
+                            @input="validateUsername" 
+                            aria-label="Username"
+                            autocomplete="Username" 
+                            required 
+                            x-model="formData.username" />
+                        
+                        <b style="color:rgb(158, 0, 11)" x-show="invalidEmail" x-text="invalidEmailMsg"></b>
+                        <input type="text" name="email" placeholder="Email" 
+                            x-ref="email" 
+                            @input="validateEmail"
+                            aria-label="Email"
+                            required 
+                            x-model="formData.email"
+                            />
+                            
+                        <input type="password" 
+                            name="password" 
+                            x-ref="password" 
+                            @input="validateSamePass" 
+                            x-model="formData.password" 
+                            placeholder="Password"
+                            aria-label="Password" 
+                            autocomplete="current-password" 
+                            required />
+
+                        <b style="color:rgb(158, 0, 11)" x-show="invalidPass" x-text="invalidPassMsg"></b>
+                        <input type="password" 
+                            name="password2" 
+                            x-ref="password2" 
+                            @input="validateSamePass" 
+                            placeholder="Password"
+                            aria-label="Password" 
+                            autocomplete="current-password" 
+                            required />
+
+                        <button type="submit" role="button">Crear usuario</button>
+                        ¿Ya tienes una cuenta? <a href="/login" class="button outline">Iniciar Sesión Aqui</a>
+                    </form>
+                </form>
+            </article>
+        </main>
+
+        <script>
+            document.addEventListener('alpine:init', () => {
+                const dataTheme = localStorage.getItem("data-theme");
+                const html = document.documentElement;       
+                html.setAttribute("data-theme",dataTheme);
+
+                Alpine.data('app', ()=>({
+                    modal: false,
+                    signupSucess: false,
+                    isEdit: false,
+                    username: '',
+                    token: '',
+                    formData: {
+                        username: '',
+                        email: '',
+                        password: ''
+                    },
+                    timers:{
+                        username:null,
+                        email:null,
+                        password:null
+                    },
+                    usernameUnavailable:false,
+                    invalidEmail:false,
+                    invalidEmailMsg: '',
+                    invalidPass: false,
+                    invalidPassMsg: '',
+                    signup() {
+                        if(!this.invalidEmail || !this.invalidPass || !this.usernameUnavailable) {
+                            fetch("/auth/signup", {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                    Accept: "application/json"
+                                },
+                                body: JSON.stringify(this.formData)
+                            })
+                            .then(response => {
+                                if(response.ok){
+                                    this.signupSucess=true;
+                                }
+                                return null;
+                            });
+                        }
+                    },
+                    toggleTheme(e) {
+                        const html = document.documentElement;
+                        if(html.getAttribute("data-theme")==null || html.getAttribute("data-theme")=="dark"){
+                            html.setAttribute("data-theme","light");
+                            e.target.innerText = '🌙';
+                            localStorage.setItem("data-theme", "light");
+                        } else {
+                            html.setAttribute("data-theme","dark");
+                            e.target.innerText = '🌞';
+                            localStorage.setItem("data-theme", "dark");
+                        }   
+                    },
+                    validateUsername(e) {
+                        const username = e.target;
+                        clearTimeout(this.timers.username);
+                        if(username.value.length>0){
+                            username.classList.remove("error");
+                            username.setCustomValidity("");
+                            this.usernamePollingTimer = setTimeout(()=>{
+                                fetch("/auth/checkAvailability?username="+e.target.value, { 
+                                    method: "GET",
+                                    headers: {
+                                        "Content-Type": "application/json",
+                                        Accept: "application/json"
+                                    },
+                                }).then(response => {
+                                    if(response.ok){
+                                        return response.json();
+                                    }
+                                    return null;
+                                }).then(data=>{
+                                    if(data.available) {
+                                        username.classList.remove("error");
+                                        this.usernameUnavailable = false;
+                                    }else if(username.value.length > 0) {
+                                        username.classList.add("error");
+                                        this.usernameUnavailable = true;
+                                    } else {
+                                        username.classList.remove("error");
+                                        this.usernameUnavailable = false;
+                                    }
+                                })
+                            }, 500);
+                            
+                        } else {
+                            username.classList.add("error");
+                            username.setCustomValidity("Nombre de usuario requerido");
+                        }
+                    },
+                    validateEmail(e) {
+                        clearTimeout(this.timers.email);
+                        this.emailTimer = setTimeout(()=>{
+                            const element = e.target;
+                            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                            if(element.value.length>0 && !emailRegex.test(element.value)) {
+                                this.invalidEmail = true;
+                                this.invalidEmailMsg = 'Introduce una dirección de correo electrónico válida.';
+                                element.classList.add("error");
+                            } else {
+                                this.invalidEmail = false;
+                                element.invalidEmailMsg = "";
+                                element.classList.remove("error");
+                            }
+                        }, 2000);
+                    },
+                    validateSamePass(e) {
+                        let password  = this.$refs.password;
+                        let password2 = this.$refs.password2;
+                        clearInterval(this.timers.password);
+                        this.timers.password = setTimeout(()=>{
+                            if(password.value.length > 0) {
+                                if(password.value === password2.value){
+                                    password.classList.remove("error");
+                                    password2.classList.remove("error");
+                                    this.invalidPass = false;
+                                    password.setCustomValidity("");
+                                    password2.setCustomValidity("");
+                                } else {
+                                    e.target.classList.add("error");
+                                    this.invalidPass = true;
+                                    this.invalidPassMsg = "Contraseña no coinciden con la anterior";
+                                    password2.setCustomValidity("");
+                                }
+                            }
+                        }, 1);
+                    }
+                }));
+            });
+
+
+        </script>
+
+    </body>
+</html>

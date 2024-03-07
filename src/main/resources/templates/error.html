@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css" />
+</head>
+
+<body>
+    <main class="container" >
+        <article>
+            <h1 th:text="${statusCode}"></h1>
+            <div th:switch="${statusCode}">
+                <div th:case="403">
+                    <p>Acceso prohibido. No tienes permisos para acceder a este recurso.</p>
+                </div>
+                <div th:case="404">
+                    <p>Recurso no encontrado. Lo sentimos, la página que estás buscando no existe.</p>
+                </div>
+                <div th:case="500">
+                    <p>Error interno del servidor. Se ha producido un error inesperado.</p>
+                </div>
+                <div th:case="*">
+                    <p>Otro tipo de error. Por favor, intenta de nuevo más tarde.</p>
+                </div>
+            </div>
+        </article>
+    </main>
+</body>
+
+</html>

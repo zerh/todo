@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html data-theme="light">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>::Billet Todo List::</title>
+        <meta name="TodoList" content="Billet TodoList" />
+        <!-- Pico.css -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css" />
+        <!-- Alpine.js -->
+        <script src="//unpkg.com/alpinejs" defer></script>
+        <style>
+            [x-cloak] { display: none; }
+            main {
+                transform: scale(0.8);
+                padding: 0px !important;
+            }
+            body {
+                overflow-y: hidden;
+                margin: 0px;
+                padding: 0px;
+            }
+            input[type="date"] {
+                width: 190px;
+            }
+            details summary::after { float: left !important; margin: 0px 10px 0px 0px;}
+        </style>
+    </head>
+    <body x-data="app" x-cloak style="overflow-y: scroll;">
+        <dialog x-bind:open="modal">
+            <article>
+            <h3>Error!</h3>
+            <p>
+                Error: La convinacion de usuario y contraseña es incorrecta.
+            </p>
+            <footer>
+                <a href="#" @click.prevent="modal=false" role="button" class="secondary">Ok</a>
+            </footer>
+            </article>
+        </dialog>
+        <fieldset class="grid">
+            <button 
+                onclick="toggleTheme(this)"
+                style="width:64px; position: absolute; top: 0px; left: 0px; border: 0px;" 
+                class="outline">🌞</button>
+                        
+        </fieldset>
+
+        <main class="container">
+            <article class="grid">
+
+                <form @submit.prevent="tokenLogin">
+                    <hgroup>
+                        <h1>Iniciar Sesión</h1>
+                        <p>Accede a tu cuenta</p>
+                    </hgroup>
+                    <form>
+                        <input type="text" name="Username" placeholder="Username" aria-label="Username"
+                            autocomplete="username" required x-model="formData.username" />
+
+                        <input type="password" name="password" x-model="formData.password" placeholder="Password"
+                            aria-label="Password" autocomplete="current-password" required />
+
+                        <fieldset>
+                            <label for="remember">
+                                <input type="checkbox" role="switch" id="remember" name="remember" />
+                                Remember me
+                            </label>
+                        </fieldset>
+
+                        <button type="submit" class="">Login</button>
+                        <a href="/auth/signup" class="button outline">Registrar</a>
+                    </form>
+                </form>
+            </article>
+        </main>
+
+        <script>
+            document.addEventListener('alpine:init', () => {
+                const dataTheme = localStorage.getItem("data-theme");
+                const html = document.documentElement;       
+                html.setAttribute("data-theme",dataTheme);
+
+                Alpine.data('app', ()=>({
+                  
+                    modal: false,
+                    login: true,
+                    isEdit: false,
+                    username: '',
+                    token: '',
+                    formData: {
+                        username: '',
+                        password: ''
+                    },
+                    
+                    tokenLogin() {
+                        fetch("/auth/login", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                Accept: "application/json"
+                            },
+                            body: JSON.stringify(this.formData)
+                        })
+                        .then(response => {
+                            if(response.ok){
+                                return response.json();
+                            } else if(response.status === 403) {
+                                this.modal = true;
+                            }
+                            return null;
+                        })
+                        .then(data => {
+                            if(data){
+                                this.token = data.token;
+                                this.username = data.username;
+                                localStorage.setItem('jwt', this.token);
+                                localStorage.setItem('username', this.username);
+                                localStorage.setItem('loggedIn', true);
+
+                                window.location.href = "/todo";
+                            }
+                        });
+                    }
+                }));
+            });
+
+
+        </script>
+
+    </body>
+</html>

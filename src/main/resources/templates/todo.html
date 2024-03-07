@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>::Billet Todo List::</title>
+        <meta name="TodoList" content="Billet TodoList" />
+        <!-- Pico.css -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css" />
+        <!-- Alpine.js -->
+        <script src="//unpkg.com/alpinejs" defer></script>
+        <style>
+            [x-cloak] { display: none; }
+            main {
+                transform: scale(0.9);
+                padding: 0px !important;
+            }
+            body {
+                overflow-y: hidden;
+                /* margin: 0px;
+                padding: 0px; */
+            }
+            input[type="date"] {
+                width: 190px;
+            }
+
+            details summary::after { float: left !important; margin: 0px 10px 0px 0px;}
+            details p { margin-bottom: 10px; font-size:1.1em;}
+            .blink {
+                animation: blinker 0.6s linear infinite;
+            }
+
+            @keyframes blinker {
+                /* 50% {
+                    font-size: 0.8em;
+                } */
+                100% {
+                    opacity: 0;
+                }
+            }
+        </style>
+    </head>
+    <body x-data="app">
+
+        <fieldset class="grid" style="margin: 10px;">
+            <button 
+                onclick="toggleTheme(this)"
+                style="width:64px; position: absolute; top: 0px; left: 0px; border: 0px;" 
+                class="outline">🌞</button>
+        
+            <fieldset class="grid"  style="border: 0px; width: 400px; position: absolute; right: 0px;">
+                <a href="/admin" role="button" style="height: 62px;">Admin</a>  
+                <button onclick="closeSession()" class="outline">⏻ Cerrar Sesión</button>  
+
+            </fieldset>
+        </fieldset>
+         
+        <main class="container" style="margin-top: 40px;">
+            <article x-transition x-ref="todoPanel" style="margin: 0px;">
+                <header style="margin-bottom: 10px;">
+                    <h1 style="margin-bottom: 0px;">TODO</h1>
+                    <h4>Usuario: <span x-text="username"></span></h4>
+
+                    <fieldset class="grid" style="margin-top: 50px;">
+                        <div>
+                            <label for="name" style="font-size: 0.8em;">Nombre</label>
+                            <input x-model="upsertItem.newValue" x-ref="newItem" id="name" type="text" placeholder="Nombre" x-on:input="validateInput" style="height: 42px;" />
+                        </div>
+                        <fieldset class="grid">
+                            <div>
+                                <label for="crationDate" style="font-size: 0.8em;">Fecha de Creación</label>
+                                <input id="creationDate" x-model="upsertItem.creationDate" type="date" style="height: 42px;" />
+                            </div>
+                            <div>
+                                <label for="expirationDate" style="font-size: 0.8em;">Fecha de Expiración</label> 
+                                <input id="expirationDate" x-model="upsertItem.expirationDate" type="date" style="height: 42px;" />
+                            </div>
+                        </fieldset>
+                    </fieldset> 
+
+                    <details style="margin:0px;">
+                        <summary>Descripcion</summary>
+                        <textarea x-model="upsertItem.description" placeholder="Description"></textarea>
+                    </details>
+
+                    <fieldset class="grid">
+                        <button @click="upsert" x-text="upsertBtnText" class="contrast outline" style="margin: 0px;" />
+                        <button x-show="isEdit" x-cloak @click="reset" class="primary outline" style="margin: 0px;">Cancelar</button>
+                    </fieldset>
+                    
+                </header>
+
+                <div style="display: flex; gap: 50px;">
+                    <div style="flex: 70%;">
+                        <label x-text="tableLabel">Items</label>
+                        <table id="todoTable">
+                            <template x-for="(item, index) in items" >
+                                <tr>
+                                    <td valign="top" style="width: 60px;">
+                                        <input type="checkbox" 
+                                            x-model="item.done"
+                                            x-bind:checked="item.done"
+                                            @change="e => toggleDone(index)" />
+                                    </td>
+                                    <td>
+                                        <details style="border:0px; padding: 0px; margin-bottom: 0;">
+                                            <summary><strong x-text="item.textValue" :style="item.done ? 'text-decoration:line-through;' : ''"></strong></summary>
+                                            <p x-text="item.description" :style="item.done ? 'text-decoration:line-through;' : ''"></p>
+                                            <div :style="item.done ? 'text-decoration:line-through; display: flex; font-size: 0.8em;' : 'display: flex; font-size: 0.8em;'">
+                                                <label style="flex: 50%; margin-right: 30px;" >Creación:<br/><span x-text="item.creationDate"></span></label>
+                                                <label style="flex: 50%;">Expiración:<br/><span x-text="item.expirationDate"></span></label>
+                                            </div>
+                                            
+                                        </details>
+                                    </td>
+                                    <td valign="top" style="width: 60px;">
+                                        <a href="#" @click="edit(index)">✏️</a>
+                                    </td>
+                                    <td valign="top" style="width: 60px;">
+                                        <a href="#" @click="remove(index)">❌</a>
+                                    </td>
+                                </tr>
+                            </template>
+                        </table>
+                    </div>
+                </div>
+                <footer id="pages" style="margin-top: 40px;">
+                    <center>
+                        <template x-for="page in totalPages">
+                            <a href="#" :id="'link_page_'+page" @click="selectPage($event.target)" style="margin-right: 15px;" x-text="page"></a>
+                        </template>
+                    </center>
+                </footer>
+            </article>
+        </main>
+
+        <script src="/todo.js"></script>
+        <script src="/common.js"></script>
+    </body>
+</html>

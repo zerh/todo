@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html data-theme="dark">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>::Billet Todo List::</title>
+    <meta name="TodoList" content="Billet TodoList" />
+    <!-- Pico.css -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css" />
+    <!-- Alpine.js -->
+    <script src="//unpkg.com/alpinejs" defer></script>
+    <style>
+        [x-cloak] {
+            display: none;
+        }
+
+        body {
+            overflow-y: hidden;
+        }
+
+        details summary::after {
+            float: left !important;
+            margin: 0px 10px 0px 0px;
+        }
+    </style>
+</head>
+
+<body x-data="admin" x-cloak
+    style="overflow-y: scroll;">
+
+    <fieldset class="grid">
+        <button 
+        @click="toggleTheme($event)"
+        style="width:64px; position: absolute; top: 0px; left: 0px; border: 0px;" 
+        class="outline">🌞</button>
+                    
+        <button onclick="closeSession()" class="outline" style="border: 0px; width: 200px; position: absolute; right: 0px;">⏻ Cerrar Sesión</button>  
+    </fieldset>
+
+    <main class="container" style="padding: 0px; ">
+        <dialog x-bind:open="modal">
+            <article>
+                <hgroup>
+                    <h2>Actualizar Roles</h2>
+                    <p>Usuario <span x-text="upsertUser.username"></span></p>
+                </hgroup>
+                <fieldset>
+                    <input type="checkbox" id="option1" name="option1" x-model="upsertUser.roles.admin" />
+                    <label for="option1">ROLE ADMIN</label><br>
+                    <input type="checkbox" id="option2" name="option2" x-model="upsertUser.roles.user" />
+                    <label for="option2">ROLE USER</label><br>
+                </fieldset>
+                <footer>
+
+                    <fieldset>
+                        <button @click="update()">Actualizar</button>
+                        <button
+                            @click="closeModal()"
+                            class="contrast outline">Cancelar</button>
+                    </fieldset>
+                    
+                </footer>
+            </article>
+            
+        </dialog>
+
+
+        <article x-transition x-ref="todoPanel">
+            <header style="margin-bottom: 10px;">
+                <h1 style="margin-bottom: 0px;">Admin User Roles</h1>
+                <h4>Usuario: <span x-text="username"></span></h4>
+            </header>
+            <div style="display: flex; gap: 50px;">
+                <div style="flex: 70%;">
+                    <label>Items</label>
+                    <table>
+                        <template x-for="(user, index) in users">
+                            <tr>
+                                <td x-text="user.username"></td>
+                                <td x-text="user.name"></td>
+                                <td
+                                    x-text="(user.roles.admin? 'ROLE_ADMIN' : '') + ((user.roles.user && user.roles.admin)? ', ' : '') + (user.roles.user? 'ROLE_USER' : '') ">
+                                </td>
+                                <td valign="top" style="width: 60px;">
+                                    <a href="#"
+                                        @click="upsertUser = {...users[index], roles: { admin: user.roles.admin, user: user.roles.user} }; indexToEdit = index; isEdit = true; modal = true;">✏️</a>
+                                </td>
+                                <td valign="top" style="width: 60px;">
+                                    <a href="#" @click="remove(index)">❌</a>
+                                </td>
+                            </tr>
+                        </template>
+                    </table>
+                </div>
+            </div>
+
+        </article>
+    </main>
+
+    <script src="/common.js"></script>
+    <script src="/admin.js"></script>
+
+</body>
+
+</html>
