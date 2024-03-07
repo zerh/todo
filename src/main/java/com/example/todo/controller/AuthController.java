@@ -64,7 +64,7 @@ public class AuthController {
 	}
 
 	@ResponseBody
-    @PostMapping(value = "/signup", consumes = "application/json", produces = "application/json") 
+	@PostMapping(value = "/signup", consumes = "application/json", produces = "application/json") 
 	public ResponseEntity<?> singup(@RequestBody SignupDTO signupDTO) { 
 
 		User user = new User();
