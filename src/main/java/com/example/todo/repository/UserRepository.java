@@ -13,15 +13,15 @@ import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Integer> { 
-	
-	Optional<User> findByUsername(String username); 
+    
+    Optional<User> findByUsername(String username); 
 
-	@SuppressWarnings("null")
-	public List<User> findAll();
+    @SuppressWarnings("null")
+    public List<User> findAll();
 
-	public List<User> findByUsernameContaining(String username);
+    public List<User> findByUsernameContaining(String username);
 
-	@Modifying
+    @Modifying
     @Transactional
     @Query("DELETE FROM User ui WHERE ui.username = :user")
     User deleteByUsername(String user);
